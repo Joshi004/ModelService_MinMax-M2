@@ -43,7 +43,7 @@ except ImportError:
 class MiniMaxM2Client:
     """Client for testing MiniMax M2 service."""
     
-    def __init__(self, base_url: str = "http://localhost:8084"):
+    def __init__(self, base_url: str = "http://localhost:9084"):
         """Initialize the client with base URL."""
         self.base_url = base_url
         self.api_url = f"{base_url}/v1/chat/completions"
@@ -420,8 +420,8 @@ def main():
     parser.add_argument(
         "--port",
         type=int,
-        default=7104,
-        help="Port where the service is running (default: 7104)"
+        default=9084,
+        help="Port where the service is running (default: 9084)"
     )
     parser.add_argument(
         "--test-type",
@@ -444,7 +444,7 @@ def main():
     if not client.check_health():
         print(f"✗ Error: Service is not running at {base_url}")
         print("\nPlease start the service first:")
-        print("  cd /home/naresh/minimax-m2-service")
+        print("  cd ~/ModelService_MinMax-M2")
         print("  ./start_service.sh")
         sys.exit(1)
     

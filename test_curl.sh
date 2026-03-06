@@ -10,8 +10,8 @@ RED='\033[0;31m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Default to localhost:8004 (through SSH tunnel)
-BASE_URL="${1:-http://localhost:8004}"
+# Default to localhost:9084
+BASE_URL="${1:-http://localhost:9084}"
 API_URL="${BASE_URL}/v1/chat/completions"
 HEALTH_URL="${BASE_URL}/health"
 
@@ -33,8 +33,8 @@ else
     echo -e "${RED}✗ Health check failed${NC}"
     echo "Make sure:"
     echo "  1. Service is running on the compute node"
-    echo "  2. SSH tunnel is active: ssh -L 8084:<node>:8084 <login>"
-    echo "  3. Service is accessible on port 8084"
+    echo "  2. SSH tunnel is active (if remote): ssh -L 9084:<node>:9084 <login>"
+    echo "  3. Service is accessible on port 9084"
     exit 1
 fi
 
