@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# MiniMax M2 Service Setup Verification Script
+# MiniMax M2.5 Service Setup Verification Script
 # This script verifies that the service is correctly set up
 
 # Colors for output
@@ -12,8 +12,8 @@ NC='\033[0m' # No Color
 # Resolve the directory this script lives in
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 
-echo "MiniMax M2 Service Setup Verification"
-echo "======================================"
+echo "MiniMax M2.5 Service Setup Verification"
+echo "========================================"
 echo ""
 
 ERRORS=0
@@ -78,7 +78,7 @@ done
 # Check 4: Virtual environment
 echo ""
 echo "Checking virtual environment..."
-VENV_PATH="${HOME}/venvs/minimax-m2-service"
+VENV_PATH="${HOME}/venvs/minimax-m2.5-service"
 
 if [ -d "${VENV_PATH}" ]; then
     echo -e "${GREEN}✓${NC} Virtual environment exists: ${VENV_PATH}"
@@ -109,20 +109,20 @@ fi
 echo ""
 echo "Checking model directory..."
 MODEL_DIR="/mnt/hf-cache/models"
-MODEL_PATH="/mnt/hf-cache/models/minimax-m2"
+MODEL_PATH="/mnt/hf-cache/models/minimax-m2.5"
 
 if [ -d "${MODEL_DIR}" ]; then
     echo -e "${GREEN}✓${NC} Models directory exists: ${MODEL_DIR}"
 
     if [ -d "${MODEL_PATH}" ]; then
         if [ "$(ls -A ${MODEL_PATH} 2>/dev/null)" ]; then
-            echo -e "${GREEN}✓${NC} MiniMax M2 model is downloaded"
+            echo -e "${GREEN}✓${NC} MiniMax M2.5 model is downloaded"
         else
-            echo -e "${YELLOW}⚠${NC} MiniMax M2 model directory is empty (will download on first run)"
+            echo -e "${YELLOW}⚠${NC} MiniMax M2.5 model directory is empty (will download on first run)"
             WARNINGS=$((WARNINGS + 1))
         fi
     else
-        echo -e "${YELLOW}⚠${NC} MiniMax M2 model not yet downloaded (will be created on first run)"
+        echo -e "${YELLOW}⚠${NC} MiniMax M2.5 model not yet downloaded (will be created on first run)"
         WARNINGS=$((WARNINGS + 1))
     fi
 else
@@ -146,7 +146,7 @@ echo "Checking CUDA/GPU availability..."
 if command -v nvidia-smi &> /dev/null; then
     GPU_COUNT=$(nvidia-smi --list-gpus 2>/dev/null | wc -l)
     if [ "$GPU_COUNT" -ge 4 ]; then
-        echo -e "${GREEN}✓${NC} Found $GPU_COUNT GPUs (4 required for MiniMax M2)"
+        echo -e "${GREEN}✓${NC} Found $GPU_COUNT GPUs (4 required for MiniMax M2.5)"
         echo ""
         nvidia-smi --query-gpu=index,name,memory.total --format=csv 2>/dev/null | head -n 5
     elif [ "$GPU_COUNT" -gt 0 ]; then
@@ -178,14 +178,14 @@ fi
 
 # Summary
 echo ""
-echo "======================================"
+echo "========================================"
 echo "Verification Summary"
-echo "======================================"
+echo "========================================"
 
 if [ $ERRORS -eq 0 ] && [ $WARNINGS -eq 0 ]; then
     echo -e "${GREEN}✓ All checks passed!${NC}"
     echo ""
-    echo "Your MiniMax M2 service is ready to start."
+    echo "Your MiniMax M2.5 service is ready to start."
     echo ""
     echo "Next steps:"
     echo "  1. cd ${SCRIPT_DIR}"

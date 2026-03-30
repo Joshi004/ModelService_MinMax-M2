@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# MiniMax M2 Service Startup Script
-# This script starts the vLLM server for MiniMax-M2 model
+# MiniMax M2.5 Service Startup Script
+# This script starts the vLLM server for MiniMax-M2.5 model
 
 # Exit on any error
 set -e
@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 # Resolve the directory this script lives in — all paths are relative to it
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 
-echo -e "${GREEN}Starting MiniMax M2 Service...${NC}"
+echo -e "${GREEN}Starting MiniMax M2.5 Service...${NC}"
 
 # Set CUDA environment — uses system symlink, always points to installed version
 export CUDA_HOME=/usr/local/cuda
@@ -36,7 +36,7 @@ export SAFETENSORS_FAST_GPU=1
 # -----------------------------------------------------------------------
 # Virtual environment — auto-create if it doesn't exist
 # -----------------------------------------------------------------------
-VENV_PATH="${HOME}/venvs/minimax-m2-service"
+VENV_PATH="${HOME}/venvs/minimax-m2.5-service"
 
 if [ ! -d "${VENV_PATH}" ]; then
     echo -e "${YELLOW}Virtual environment not found. Creating it...${NC}"
@@ -57,23 +57,23 @@ fi
 # -----------------------------------------------------------------------
 # Model configuration
 # -----------------------------------------------------------------------
-MODEL_PATH="/mnt/hf-cache/models/minimax-m2"
-MODEL_NAME="MiniMaxAI/MiniMax-M2"
+MODEL_PATH="/mnt/hf-cache/models/minimax-m2.5"
+MODEL_NAME="MiniMaxAI/MiniMax-M2.5"
 PORT=9084
 HOST="0.0.0.0"
 DTYPE="bfloat16"
-MAX_MODEL_LEN=128000
+MAX_MODEL_LEN=128000     # M2.5 native context is 204800; 128K is sufficient for our use case and conserves memory
 TENSOR_PARALLEL_SIZE=4   # GPUs 0-3; GPUs 4-7 left free for other services
 GPU_MEMORY_UTIL=0.95
-MAX_NUM_SEQS=16
+MAX_NUM_SEQS=10
 
 # Default generation parameters (caller can override via API)
 TEMPERATURE=1.0
 TOP_P=0.95
-TOP_K=20
+TOP_K=40
 MAX_TOKENS=16384
 
-# MiniMax M2 specific flags
+# MiniMax M2.5 specific flags
 ENABLE_AUTO_TOOL_CHOICE="--enable-auto-tool-choice"
 TOOL_CALL_PARSER="--tool-call-parser minimax_m2"
 REASONING_PARSER="--reasoning-parser minimax_m2"
@@ -130,7 +130,7 @@ echo "  Model:                   $MODEL_ARG"
 echo "  Port:                    $PORT"
 echo "  Host:                    $HOST"
 echo "  Tensor Parallel Size:    $TENSOR_PARALLEL_SIZE GPUs (GPUs 0-3)"
-echo "  Max Model Length:        $MAX_MODEL_LEN tokens (128K context)"
+echo "  Max Model Length:        $MAX_MODEL_LEN tokens (128K; M2.5 native max is 205K)"
 echo "  GPU Memory Utilization:  ${GPU_MEMORY_UTIL}"
 echo "  Max Concurrent Seqs:     $MAX_NUM_SEQS"
 echo "  Data Type:               $DTYPE"
@@ -141,7 +141,7 @@ echo "    Top-P:       $TOP_P"
 echo "    Top-K:       $TOP_K"
 echo "    Max Tokens:  $MAX_TOKENS"
 echo ""
-echo "  MiniMax M2 Features:"
+echo "  MiniMax M2.5 Features:"
 echo "    - Auto Tool Choice: Enabled"
 echo "    - Tool Call Parser: minimax_m2"
 echo "    - Reasoning Parser: minimax_m2 (strips <think> tags)"

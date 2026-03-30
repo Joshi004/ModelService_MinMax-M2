@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# MiniMax M2 Service - Quick curl Test Script
+# MiniMax M2.5 Service - Quick curl Test Script
 # This script tests the service with curl commands
 
 # Colors for output
@@ -15,8 +15,8 @@ BASE_URL="${1:-http://localhost:9084}"
 API_URL="${BASE_URL}/v1/chat/completions"
 HEALTH_URL="${BASE_URL}/health"
 
-echo "MiniMax M2 Service - curl Test"
-echo "================================"
+echo "MiniMax M2.5 Service - curl Test"
+echo "================================="
 echo "Service URL: $BASE_URL"
 echo ""
 
@@ -181,7 +181,7 @@ echo "  ✓ API endpoint is responding"
 echo "  ✓ Chat completion is working"
 echo "  ✓ Parameter override is working"
 echo ""
-echo "Your MiniMax M2 service is working correctly!"
+echo "Your MiniMax M2.5 service is working correctly!"
 echo ""
 echo "Next steps:"
 echo "  - Try more complex queries"

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-MiniMax M2 Service Test Client
+MiniMax M2.5 Service Test Client
 
-This script tests the MiniMax M2 service with various capabilities:
+This script tests the MiniMax M2.5 service with various capabilities:
 - Basic text completion
 - Tool calling
 - Reasoning with <think> tags
@@ -41,7 +41,7 @@ except ImportError:
 
 
 class MiniMaxM2Client:
-    """Client for testing MiniMax M2 service."""
+    """Client for testing MiniMax M2.5 service."""
     
     def __init__(self, base_url: str = "http://localhost:9084"):
         """Initialize the client with base URL."""
@@ -73,7 +73,7 @@ class MiniMaxM2Client:
             messages: List of message dictionaries
             temperature: Sampling temperature (default: server default 1.0)
             top_p: Nucleus sampling threshold (default: server default 0.95)
-            top_k: Top-k sampling (default: server default 20)
+            top_k: Top-k sampling (default: server default 40)
             max_tokens: Maximum tokens to generate (default: server default 16384)
             tools: List of tool definitions (optional)
             stream: Whether to stream the response (default: False)
@@ -127,7 +127,7 @@ def test_basic_completion(client: MiniMaxM2Client):
         }
     ]
     
-    print("\nSending request (using server defaults: temp=1.0, top_p=0.95, top_k=20)...")
+    print("\nSending request (using server defaults: temp=1.0, top_p=0.95, top_k=40)...")
     start_time = time.time()
     
     response = client.chat_completion(messages)
@@ -346,7 +346,7 @@ def test_parameter_override(client: MiniMaxM2Client):
         }
     ]
     
-    print("\nTest 5a: Using server defaults (temp=1.0, top_p=0.95, top_k=20)")
+    print("\nTest 5a: Using server defaults (temp=1.0, top_p=0.95, top_k=40)")
     response1 = client.chat_completion(messages)
     print("✓ Response received with server defaults")
     
@@ -415,7 +415,7 @@ def run_all_tests(client: MiniMaxM2Client):
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description="Test client for MiniMax M2 service"
+        description="Test client for MiniMax M2.5 service"
     )
     parser.add_argument(
         "--port",
@@ -435,7 +435,7 @@ def main():
     base_url = f"http://localhost:{args.port}"
     client = MiniMaxM2Client(base_url)
     
-    print("MiniMax M2 Service Test Client")
+    print("MiniMax M2.5 Service Test Client")
     print("="*80)
     print(f"Service URL: {base_url}")
     
@@ -443,7 +443,7 @@ def main():
     print("\nChecking service health...")
     if not client.check_health():
         print(f"✗ Error: Service is not running at {base_url}")
-        print("\nPlease start the service first:")
+        print("\nPlease start the MiniMax M2.5 service first:")
         print("  cd ~/ModelService_MinMax-M2")
         print("  ./start_service.sh")
         sys.exit(1)

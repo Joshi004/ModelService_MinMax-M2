@@ -1,53 +1,55 @@
-# MiniMax M2 Service - Setup Complete ✅
+# MiniMax M2.5 Service - Setup Complete ✅
 
-The MiniMax M2 service has been successfully set up and is ready to use!
+The MiniMax M2.5 service has been successfully set up and is ready to use!
 
 ## Setup Summary
 
 ### ✅ Completed Tasks
 
-1. **Directory Structure**: Created service directory at `/home/naresh/minimax-m2-service/`
-2. **Virtual Environment**: Set up dedicated venv at `/home/naresh/venvs/minimax-m2-service/`
-3. **Dependencies**: Installed vLLM 0.11.2 and all required packages
-4. **Configuration Files**: Created `config.env` and `config.env.example`
-5. **Service Scripts**: Created `start_service.sh` and `stop_service.sh`
-6. **Test Client**: Created comprehensive `test_client.py`
-7. **Documentation**: Created detailed `README.md`
+1. **Directory Structure**: Service directory at `~/ModelService_MinMax-M2/`
+2. **Virtual Environment**: Dedicated venv at `~/venvs/minimax-m2.5-service/`
+3. **Dependencies**: vLLM nightly and all required packages
+4. **Configuration Files**: `config.env` and `config.env.example`
+5. **Service Scripts**: `start_service.sh` and `stop_service.sh`
+6. **Test Client**: Comprehensive `test_client.py`
+7. **Documentation**: Detailed `README.md`
 
 ### 📋 Service Configuration
 
-- **Model**: MiniMaxAI/MiniMax-M2
-- **Model Path**: `/home/naresh/models/minimax-m2/`
-- **Port**: 8084
-- **GPUs**: 4x H100 (80GB each)
-- **Context Length**: 128K tokens
-- **Virtual Environment**: `/home/naresh/venvs/minimax-m2-service/`
+- **Model**: MiniMaxAI/MiniMax-M2.5
+- **Model Path**: `/mnt/hf-cache/models/minimax-m2.5/`
+- **Port**: 9084
+- **GPUs**: 4x H100 (80GB each), GPUs 0-3
+- **Context Length**: 128K tokens in use (native: 205K)
+- **Virtual Environment**: `~/venvs/minimax-m2.5-service/`
 
 ### 🔧 Configuration Highlights
 
 **Server Default Parameters** (caller can override):
-- Temperature: 1.0 (MiniMax M2 optimized)
+- Temperature: 1.0 (MiniMax M2.5 optimized)
 - Top-P: 0.95
-- Top-K: 20
+- Top-K: 40
 - Max Tokens: 16384
 
-**MiniMax M2 Specific Features**:
+**MiniMax M2.5 Specific Features**:
 - ✅ Auto tool choice enabled
-- ✅ Tool call parser: minimax_m2
-- ✅ Reasoning parser: minimax_m2_append_think (preserves `<think>` tags)
+- ✅ Tool call parser: minimax_m2 (same parser name as M2)
+- ✅ Reasoning parser: minimax_m2 (strips `<think>` tags; use minimax_m2_append_think to preserve them)
 - ✅ Fast GPU loading enabled (SAFETENSORS_FAST_GPU=1)
+- ✅ Lightning Attention: reduces KV cache memory for long contexts
 
 ## Next Steps
 
 ### 1. Start the Service
 
 ```bash
-cd /home/naresh/minimax-m2-service
+cd ~/ModelService_MinMax-M2
 ./start_service.sh
 ```
 
 **Important Notes**:
 - **First Run**: The model (~220GB) will be automatically downloaded from HuggingFace if not present
+- **Pre-download option**: `huggingface-cli download MiniMaxAI/MiniMax-M2.5 --local-dir /mnt/hf-cache/models/minimax-m2.5`
 - **Startup Time**: Initial model loading may take 5-10 minutes
 - **GPU Check**: The script will verify all 4 GPUs are available before starting
 - **Logs**: Output will be saved to `logs/service.log`
@@ -58,7 +60,7 @@ Once started, verify the service is running:
 
 ```bash
 # Check service health
-curl http://localhost:8084/health
+curl http://localhost:9084/health
 
 # Or use the test client
 python test_client.py --test-type basic
@@ -100,7 +102,7 @@ nvidia-smi --query-gpu=index,name,utilization.gpu,memory.used,memory.total --for
 ### Basic Completion (Using Server Defaults)
 
 ```bash
-curl http://localhost:8084/v1/chat/completions \
+curl http://localhost:9084/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "messages": [{
@@ -110,12 +112,12 @@ curl http://localhost:8084/v1/chat/completions \
   }'
 ```
 
-The server will use default parameters: temp=1.0, top_p=0.95, top_k=20
+The server will use default parameters: temp=1.0, top_p=0.95, top_k=40
 
 ### Override Parameters
 
 ```bash
-curl http://localhost:8084/v1/chat/completions \
+curl http://localhost:9084/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "messages": [{
@@ -133,12 +135,12 @@ curl http://localhost:8084/v1/chat/completions \
 import requests
 
 def chat(prompt, **kwargs):
-    """Chat with MiniMax M2. Kwargs override server defaults."""
+    """Chat with MiniMax M2.5. Kwargs override server defaults."""
     payload = {"messages": [{"role": "user", "content": prompt}]}
     payload.update(kwargs)
     
     response = requests.post(
-        "http://localhost:8084/v1/chat/completions",
+        "http://localhost:9084/v1/chat/completions",
         json=payload
     )
     return response.json()["choices"][0]["message"]["content"]
@@ -154,19 +156,19 @@ response = chat("Explain bubble sort.", temperature=0.1)
 
 ### Start Service
 ```bash
-cd /home/naresh/minimax-m2-service
+cd ~/ModelService_MinMax-M2
 ./start_service.sh
 ```
 
 ### Stop Service
 ```bash
-cd /home/naresh/minimax-m2-service
+cd ~/ModelService_MinMax-M2
 ./stop_service.sh
 ```
 
 ### View Logs
 ```bash
-tail -f /home/naresh/minimax-m2-service/logs/service.log
+tail -f ~/ModelService_MinMax-M2/logs/service.log
 ```
 
 ### Check Status
@@ -175,21 +177,21 @@ tail -f /home/naresh/minimax-m2-service/logs/service.log
 ps aux | grep "vllm serve.*minimax"
 
 # Check port
-lsof -i :8084
+lsof -i :9084
 
 # Test health
-curl http://localhost:8084/health
+curl http://localhost:9084/health
 ```
 
 ## Model Comparison
 
-### MiniMax M2 (This Service - Port 8084)
-- **Specialization**: Coding, agentic workflows, tool calling
+### MiniMax M2.5 (This Service - Port 9084)
+- **Specialization**: Coding, agentic workflows, tool calling, transcript/document analysis
 - **Modality**: Text-only
-- **Context**: 128K tokens
-- **GPUs**: 4x H100
+- **Context**: 128K tokens in use (native: 205K)
+- **GPUs**: 4x H100 (GPUs 0-3)
 - **Memory**: ~220GB
-- **Best For**: Code generation, debugging, multi-file edits, tool use
+- **Best For**: Code generation, debugging, multi-file edits, tool use, long-document analysis
 
 ### Qwen3-Omni (Port 8002)
 - **Specialization**: Multimodal understanding
@@ -198,14 +200,6 @@ curl http://localhost:8084/health
 - **GPUs**: 2x H100
 - **Memory**: ~60GB
 - **Best For**: Video/audio analysis, multimodal tasks
-
-### Qwen3-Captioner (Port 8003)
-- **Specialization**: Audio captioning
-- **Modality**: Audio input, text output
-- **Context**: 32K tokens
-- **GPUs**: 2x H100
-- **Memory**: ~60GB
-- **Best For**: Audio transcription, detailed audio descriptions
 
 ## Troubleshooting
 
@@ -219,19 +213,19 @@ curl http://localhost:8084/health
 
 2. **Check port availability**:
    ```bash
-   lsof -i :8084
+   lsof -i :9084
    ```
    If port is in use, stop the conflicting service or change port in `config.env`.
 
 3. **Check virtual environment**:
    ```bash
-   source /home/naresh/venvs/minimax-m2-service/bin/activate
+   source ~/venvs/minimax-m2.5-service/bin/activate
    which vllm
    ```
 
 4. **Check logs**:
    ```bash
-   tail -100 /home/naresh/minimax-m2-service/logs/service.log
+   tail -100 ~/ModelService_MinMax-M2/logs/service.log
    ```
 
 ### Model Download
@@ -239,13 +233,13 @@ curl http://localhost:8084/health
 On first run, the model will be downloaded:
 - **Size**: ~220GB
 - **Time**: Depends on network speed (30min - 2hrs typically)
-- **Location**: `/home/naresh/models/minimax-m2/`
+- **Location**: `/mnt/hf-cache/models/minimax-m2.5/`
 - **Progress**: Shown in terminal output
 
 To pre-download the model:
 ```bash
-source /home/naresh/venvs/minimax-m2-service/bin/activate
-huggingface-cli download MiniMaxAI/MiniMax-M2 --local-dir /home/naresh/models/minimax-m2
+source ~/venvs/minimax-m2.5-service/bin/activate
+huggingface-cli download MiniMaxAI/MiniMax-M2.5 --local-dir /mnt/hf-cache/models/minimax-m2.5
 ```
 
 ### Memory Issues
@@ -259,7 +253,7 @@ If you encounter OOM errors:
 
 2. **Reduce concurrent requests**:
    ```bash
-   MAX_NUM_SEQS=8  # Instead of 16
+   MAX_NUM_SEQS=8  # Instead of 10
    ```
 
 3. **Reduce GPU memory utilization**:
@@ -270,7 +264,7 @@ If you encounter OOM errors:
 ## Key Features
 
 ### 1. Parameter Override System
-- **Server provides sensible defaults**: temp=1.0, top_p=0.95, top_k=20
+- **Server provides sensible defaults**: temp=1.0, top_p=0.95, top_k=40
 - **Callers can override**: Specify parameters in API request
 - **Flexible**: Use defaults for most cases, override for specific needs
 
@@ -285,52 +279,53 @@ If you encounter OOM errors:
 - Supports complex multi-tool workflows
 
 ### 4. Long Context Support
-- Full 128K token context window
+- 128K token context window in use; M2.5 native max is 205K
 - Handles large codebases and documents
-- Efficient MoE architecture (only 10B active params)
+- Efficient MoE + Lightning Attention architecture (only 10B active params; reduced KV cache)
 
-## Files Created
+## Files
 
 ```
-/home/naresh/minimax-m2-service/
+~/ModelService_MinMax-M2/
 ├── README.md                 # Comprehensive documentation
 ├── SETUP_COMPLETE.md        # This file
-├── config.env               # Configuration (with your paths)
+├── config.env               # Configuration
 ├── config.env.example       # Example configuration
 ├── start_service.sh         # Service startup script (executable)
 ├── stop_service.sh          # Service shutdown script (executable)
 ├── test_client.py           # Test client (executable)
 └── logs/                    # Log directory
-    └── service.log          # Will be created on first run
+    └── service.log          # Created on first run
 
-/home/naresh/venvs/minimax-m2-service/
-└── (virtual environment with vLLM 0.11.2 and dependencies)
+~/venvs/minimax-m2.5-service/
+└── (virtual environment with vLLM nightly and dependencies)
 
-/home/naresh/models/minimax-m2/
-└── (model will be downloaded here on first run)
+/mnt/hf-cache/models/minimax-m2.5/
+└── (model downloaded here on first run; ~220GB)
 ```
 
 ## Resources
 
-- **Service README**: `/home/naresh/minimax-m2-service/README.md`
-- **Configuration**: `/home/naresh/minimax-m2-service/config.env`
-- **Model Card**: https://huggingface.co/MiniMaxAI/MiniMax-M2
+- **Service README**: `~/ModelService_MinMax-M2/README.md`
+- **Configuration**: `~/ModelService_MinMax-M2/config.env`
+- **Model Card**: https://huggingface.co/MiniMaxAI/MiniMax-M2.5
 - **vLLM Docs**: https://docs.vllm.ai/
-- **Tool Calling Guide**: https://huggingface.co/MiniMaxAI/MiniMax-M2/blob/main/docs/tool_calling_guide.md
+- **vLLM M2.5 Recipe**: https://docs.vllm.ai/projects/recipes/en/latest/MiniMax/MiniMax-M2.5.html
 
 ## Summary
 
 ✅ **All setup tasks completed successfully!**
 
-The MiniMax M2 service is ready to:
+The MiniMax M2.5 service is ready to:
 - Generate high-quality code
 - Perform complex debugging and refactoring
 - Use tools automatically when needed
 - Reason through problems with `<think>` tags
-- Handle long contexts up to 128K tokens
+- Handle long contexts up to 128K tokens (native: 205K)
 - Process multiple concurrent requests efficiently
+- Analyze long transcripts and documents with improved instruction following
 
-You can now start the service and begin using MiniMax M2 for your coding and agentic workflow needs!
+You can now start the service and begin using MiniMax M2.5!
 
 ---
 
@@ -338,4 +333,3 @@ You can now start the service and begin using MiniMax M2 for your coding and age
 - Check `README.md` for detailed usage instructions
 - View logs at `logs/service.log` for debugging
 - Run `python test_client.py --test-type all` for comprehensive testing
-

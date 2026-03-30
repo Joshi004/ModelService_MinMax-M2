@@ -1,6 +1,6 @@
-# MiniMax M2 Service - SLURM Commands & Usage Guide
+# MiniMax M2.5 Service - SLURM Commands & Usage Guide
 
-This document contains all commands needed to request 4 GPUs and run the MiniMax M2 service on a SLURM cluster.
+This document contains all commands needed to request 4 GPUs and run the MiniMax M2.5 service on a SLURM cluster.
 
 ## Quick Reference
 
@@ -11,7 +11,7 @@ This document contains all commands needed to request 4 GPUs and run the MiniMax
 srun --gres=gpu:4 --cpus-per-task=16 --mem=500G --time=24:00:00 --pty bash
 
 # Once allocated, start the service
-cd /home/naresh/minimax-m2-service
+cd ~/ModelService_MinMax-M2
 ./start_service.sh
 ```
 
@@ -67,7 +67,7 @@ Once you have the interactive session with 4 GPUs:
 
 ```bash
 # Navigate to service directory
-cd /home/naresh/minimax-m2-service
+cd ~/ModelService_MinMax-M2
 
 # Start the service
 ./start_service.sh
@@ -76,7 +76,7 @@ cd /home/naresh/minimax-m2-service
 The service will:
 - Check GPU availability (should show 4 GPUs)
 - Load the model across 4 GPUs
-- Start vLLM server on port 8084
+- Start vLLM server on port 9084
 - Log output to `logs/service.log`
 
 ### 3. Monitor the Service
@@ -84,7 +84,7 @@ The service will:
 **In the same terminal (service output):**
 - Service logs will be displayed in real-time
 - Model loading progress will be shown
-- Once ready, you'll see "Uvicorn running on http://0.0.0.0:8084"
+- Once ready, you'll see "Uvicorn running on http://0.0.0.0:9084"
 
 **In another terminal (SSH to same node):**
 ```bash
@@ -98,10 +98,10 @@ nvidia-smi --query-gpu=index,name,utilization.gpu,memory.used,memory.total --for
 ps aux | grep "vllm serve.*minimax"
 
 # Check port
-lsof -i :8084
+lsof -i :9084
 
 # Test service health
-curl http://localhost:8084/health
+curl http://localhost:9084/health
 ```
 
 ### 4. Test the Service
@@ -112,7 +112,7 @@ curl http://localhost:8084/health
 ssh <compute-node>
 
 # Navigate to service directory
-cd /home/naresh/minimax-m2-service
+cd ~/ModelService_MinMax-M2
 
 # Run tests
 python test_client.py --test-type basic
@@ -121,7 +121,7 @@ python test_client.py --test-type all
 
 **Using curl:**
 ```bash
-curl http://localhost:8084/v1/chat/completions \
+curl http://localhost:9084/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "messages": [{
@@ -136,7 +136,7 @@ curl http://localhost:8084/v1/chat/completions \
 ```bash
 # In the service terminal, press Ctrl+C
 # Or use the stop script
-cd /home/naresh/minimax-m2-service
+cd ~/ModelService_MinMax-M2
 ./stop_service.sh
 ```
 
@@ -156,7 +156,7 @@ Create a file `minimax_m2_job.sh`:
 
 ```bash
 #!/bin/bash
-#SBATCH --job-name=minimax-m2
+#SBATCH --job-name=minimax-m2.5
 #SBATCH --output=minimax_m2_job_%j.out
 #SBATCH --error=minimax_m2_job_%j.err
 #SBATCH --gres=gpu:4
@@ -176,12 +176,12 @@ echo "GPUs: $SLURM_GPUS_ON_NODE"
 echo "Start time: $(date)"
 
 # Set CUDA environment
-export CUDA_HOME=/usr/local/cuda-12.9
+export CUDA_HOME=/usr/local/cuda
 export PATH=$CUDA_HOME/bin:$PATH
 export LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
 
 # Navigate to service directory
-cd /home/naresh/minimax-m2-service
+cd ~/ModelService_MinMax-M2
 
 # Start the service
 ./start_service.sh
@@ -234,26 +234,26 @@ grep "Node:" minimax_m2_job_<JOBID>.out
 **From your local machine:**
 ```bash
 # Create tunnel to compute node
-ssh -L 8084:<compute-node>:8084 <login-node>
+ssh -L 9084:<compute-node>:9084 <login-node>
 
 # Keep this terminal open
-# Now you can access the service at http://localhost:8084
+# Now you can access the service at http://localhost:9084
 ```
 
 **Example:**
 ```bash
 # If compute node is gpu-node-01
-ssh -L 8084:gpu-node-01:8084 user@login.cluster.edu
+ssh -L 9084:gpu-node-01:9084 user@login.cluster.edu
 ```
 
 ### 3. Test from Local Machine
 
 ```bash
 # Test health endpoint
-curl http://localhost:8084/health
+curl http://localhost:9084/health
 
 # Test API
-curl http://localhost:8084/v1/chat/completions \
+curl http://localhost:9084/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
     "messages": [{
@@ -279,7 +279,7 @@ srun --gres=gpu:4 --cpus-per-task=16 --mem=500G --time=24:00:00 --pty bash
 nvidia-smi
 
 # 4. Navigate to service directory
-cd /home/naresh/minimax-m2-service
+cd ~/ModelService_MinMax-M2
 
 # 5. Start the service
 ./start_service.sh
@@ -288,7 +288,7 @@ cd /home/naresh/minimax-m2-service
 
 # 7. In another terminal, SSH to compute node and test
 ssh <compute-node>
-cd /home/naresh/minimax-m2-service
+cd ~/ModelService_MinMax-M2
 python test_client.py --test-type basic
 
 # 8. Monitor GPUs
@@ -384,10 +384,10 @@ srun --gres=gpu:4 --cpus-per-task=16 --mem=600G --time=24:00:00 --pty bash
 ps aux | grep "vllm serve"
 
 # Check if port is listening
-lsof -i :8084
+lsof -i :9084
 
 # Check service logs
-tail -100 /home/naresh/minimax-m2-service/logs/service.log
+tail -100 ~/ModelService_MinMax-M2/logs/service.log
 
 # Verify you're on the correct node
 hostname
@@ -437,7 +437,7 @@ echo $SLURM_CPUS_PER_TASK
 
 ## Recommended Resource Requests
 
-### For MiniMax M2 (4x H100 80GB)
+### For MiniMax M2.5 (4x H100 80GB)
 
 **Minimum:**
 ```bash
@@ -472,19 +472,19 @@ srun --gres=gpu:4 --cpus-per-task=16 --mem=500G --time=24:00:00 --pty bash
 # ============================================
 # START SERVICE
 # ============================================
-cd /home/naresh/minimax-m2-service && ./start_service.sh
+cd ~/ModelService_MinMax-M2 && ./start_service.sh
 
 # ============================================
 # MONITOR
 # ============================================
 watch -n 1 nvidia-smi
-tail -f /home/naresh/minimax-m2-service/logs/service.log
+tail -f ~/ModelService_MinMax-M2/logs/service.log
 
 # ============================================
 # TEST
 # ============================================
 python test_client.py --test-type basic
-curl http://localhost:8084/health
+curl http://localhost:9084/health
 
 # ============================================
 # STOP
@@ -504,7 +504,7 @@ exit
 
 1. **First Run**: Model download (~220GB) happens automatically on first start
 2. **Model Loading**: Takes 5-10 minutes first time, 2-3 minutes subsequent runs
-3. **Port**: Service runs on port 8084 (ensure it's not in use)
+3. **Port**: Service runs on port 9084 (ensure it's not in use)
 4. **GPUs**: Requires exactly 4 GPUs (H100 80GB recommended)
 5. **Memory**: Model uses ~220GB GPU memory across 4 GPUs
 6. **Time Limit**: Set appropriate time limit based on your needs
@@ -512,8 +512,8 @@ exit
 
 ---
 
-**Last Updated**: Setup completion date
-**Service Location**: `/home/naresh/minimax-m2-service/`
-**Service Port**: 8084
+**Last Updated**: March 2026 (M2.5 migration)
+**Service Location**: `~/ModelService_MinMax-M2/`
+**Service Port**: 9084
 **Required GPUs**: 4x H100 80GB
 

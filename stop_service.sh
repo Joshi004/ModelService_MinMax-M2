@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# MiniMax M2 Service Stop Script
-# This script gracefully stops the vLLM server for MiniMax-M2 model
+# MiniMax M2.5 Service Stop Script
+# This script gracefully stops the vLLM server for MiniMax-M2.5 model
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -9,15 +9,15 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
-echo -e "${GREEN}Stopping MiniMax M2 Service...${NC}"
+echo -e "${GREEN}Stopping MiniMax M2.5 Service...${NC}"
 
 # Function to check if service is running
 check_service() {
-    # Check for vLLM process serving MiniMax M2 model
-    VLLM_PIDS=$(pgrep -f "vllm serve.*minimax-m2")
+    # Check for vLLM process serving MiniMax M2.5 model
+    VLLM_PIDS=$(pgrep -f "vllm serve.*minimax-m2.5")
     if [ -z "$VLLM_PIDS" ]; then
         # Also check for the model name variant
-        VLLM_PIDS=$(pgrep -f "vllm serve.*MiniMax-M2")
+        VLLM_PIDS=$(pgrep -f "vllm serve.*MiniMax-M2.5")
     fi
     echo "$VLLM_PIDS"
 }
@@ -26,11 +26,11 @@ check_service() {
 PIDS=$(check_service)
 
 if [ -z "$PIDS" ]; then
-    echo -e "${YELLOW}No MiniMax M2 service found running${NC}"
+    echo -e "${YELLOW}No MiniMax M2.5 service found running${NC}"
     exit 0
 fi
 
-echo -e "${YELLOW}Found MiniMax M2 service process(es): $PIDS${NC}"
+echo -e "${YELLOW}Found MiniMax M2.5 service process(es): $PIDS${NC}"
 
 # Gracefully terminate processes
 echo -e "${GREEN}Sending SIGTERM for graceful shutdown...${NC}"
