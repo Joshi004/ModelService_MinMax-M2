@@ -78,6 +78,10 @@ ENABLE_AUTO_TOOL_CHOICE="--enable-auto-tool-choice"
 TOOL_CALL_PARSER="--tool-call-parser minimax_m2"
 REASONING_PARSER="--reasoning-parser minimax_m2"
 
+# Extra API id without "/" — Cursor's custom OpenAI flow often rejects
+# "org/model" strings as "Model name is not valid". Both names work in /v1/chat/completions.
+SERVED_MODEL_NAMES=(--served-model-name "MiniMaxAI/MiniMax-M2.5" minimax-m2-5)
+
 # -----------------------------------------------------------------------
 # Pre-flight checks
 # -----------------------------------------------------------------------
@@ -127,6 +131,7 @@ mkdir -p "${SCRIPT_DIR}/logs"
 echo ""
 echo -e "${GREEN}Starting vLLM server with the following configuration:${NC}"
 echo "  Model:                   $MODEL_ARG"
+echo "  OpenAI API model IDs:    MiniMaxAI/MiniMax-M2.5, minimax-m2-5 (Cursor: use minimax-m2-5)"
 echo "  Port:                    $PORT"
 echo "  Host:                    $HOST"
 echo "  Tensor Parallel Size:    $TENSOR_PARALLEL_SIZE GPUs (GPUs 0-3)"
@@ -166,4 +171,5 @@ vllm serve "$MODEL_ARG" \
   $ENABLE_AUTO_TOOL_CHOICE \
   $TOOL_CALL_PARSER \
   $REASONING_PARSER \
+  "${SERVED_MODEL_NAMES[@]}" \
   2>&1 | tee "${SCRIPT_DIR}/logs/service.log"
